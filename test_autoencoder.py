@@ -19,10 +19,9 @@ def load_and_preprocess(path):
     return img_array
 
 
-file_model = Path(path[0] + "/autoencoder_18.keras")
-# file_model = Path(path[0] + "/base_model.keras")
+file_model = Path(path[0] + "/autoencoder_0.keras")
 autoencoder_model = load_model(file_model)
-autoencoder_model.summary()
+# autoencoder_model.summary()
     
 
 
@@ -43,10 +42,10 @@ feature_extractor = Model(inputs=autoencoder_model.input, outputs=autoencoder_mo
 test_paths = [p for p in (IMAGE_DIR).glob('*')]
 test_data = [load_and_preprocess(p) for p in test_paths]
 test_data = np.array(test_data)
-print(f"Форма тестовых данных: {test_data.shape}")
+print(f"\nФорма тестовых данных: {test_data.shape}")
 
 metrics = autoencoder_model.evaluate(test_data, test_data)
-print(metrics, "\n\n")
+print("\nМетрики my_model:", metrics, "\n\n")
 
 
 features_1 = feature_extractor.predict(test_img1)

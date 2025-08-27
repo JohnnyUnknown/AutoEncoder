@@ -2,63 +2,71 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.saving import get_custom_objects
 from PIL import Image
 from pathlib import Path
 
-# Функция для загрузки и предобработки изображения
-def load_and_preprocess_image(path, target_size=(28, 28)):
-    img = Image.open(path).convert('L')  # конвертируем в grayscale
+
+def load_and_preprocess_image(path, target_size):
+    img = Image.open(path).convert('L')  
     img = img.resize(target_size)
-    img_array = np.array(img).astype('float32') / 255.0  # нормализация в [0,1]
+    img_array = np.array(img).astype('float32') / 255.0  
     img_array = np.expand_dims(img_array, axis=(0, -1))  # (1, H, W, 1)
     return img_array
 
-IMAGE_DIR = Path("C:\\My\\Projects\\images\\main\\Data_img\\Dataset\\test")
-file_model = IMAGE_DIR / "g_ (1)_rotated_0.jpg"
+# def combined_loss(y_true, y_pred):
+#     mse = tf.keras.losses.MeanSquaredError()(y_true, y_pred)
+#     mae = tf.keras.losses.MeanAbsoluteError()(y_true, y_pred)
+#     return 0.5 * mse + 0.5 * mae
+
+
+
+# IMAGE_DIR = Path("C:\\My\\Projects\\images\\main\\Data_img\\Dataset_192\\train_0")
+# file_model = "C:\\My\\Projects\\images\\main\\Data_img\\Dataset_192\\test\\g_ (10)_rotated_90_flipped_channels_permuted.jpg"
+# file_model = IMAGE_DIR / "g_ (8)_rotated_270_flipped.jpg"
+# file_model = IMAGE_DIR / "g_ (6)_rotated_0.jpg"
+
+
+IMAGE_DIR = Path("C:\\My\\Projects\\images\\main\\Data_img\\Dataset_160\\train_0")
+# file_model = "C:\\My\\Projects\\images\\main\\Data_img\\Dataset_160\\test\\g_ (9)_rotated_90.jpg"
+file_model = IMAGE_DIR / "g_ (6)_rotated_0.jpg"
+# file_model = IMAGE_DIR / "g_ (7)_rotated_270_flipped_channels_permuted.jpg"
 
 # Определение простого автоэнкодера
-latent_dim = 128
-input_shape = (320, 320, 1)
+latent_dim = 256
+# input_shape = (192, 192, 1)
+input_shape = (160, 160, 1)
 
-auto = load_model("my_model_0.keras")
+# get_custom_objects().update({'combined_loss': combined_loss})
+# autoencoder = load_model("new_model_1.keras")
+autoencoder = load_model("model_256_160p_0.keras")
 
-encoder = Model(inputs=auto.input, outputs=auto.get_layer("latent_features").output)
-autoencoder = Model(inputs=auto.input, outputs=auto.get_layer(decoded).output)
-encoder.summary()
+# encoder = Model(inputs=auto.input, outputs=auto.get_layer("getting_features").output)
+encoder = Model(inputs=autoencoder.input, outputs=autoencoder.get_layer("latent_features").output)
+# autoencoder = Model(inputs=auto.input, outputs=auto.get_layer("sequential_1").output)
+# autoencoder = Model(inputs=auto.input, outputs=auto.get_layer("decoder").output)
 autoencoder.summary()
 
 
 # Загрузка и подготовка изображения
-img_path = file_model  # замените на путь к вашему изображению
-img = load_and_preprocess_image(img_path)
-
-# Обучение автоэнкодера на одном изображении (для демонстрации)
-# autoencoder.fit(img, img, epochs=100, verbose=0)
+img = load_and_preprocess_image(file_model, input_shape[:2])
 
 # Получение признаков и восстановления
 features = encoder.predict(img)
 reconstructed = autoencoder.predict(img)
 
 # Визуализация
-plt.figure(figsize=(12,4))
+fig = plt.figure(figsize=(12,4))
+axs = fig.subplots(1, 3)
 
-# Исходное изображение
-plt.subplot(1,3,1)
-plt.title("Original Image")
-plt.imshow(img[0,:,:,0], cmap='gray')
-plt.axis('off')
-
-# Визуализация признаков (latent_dim вектор)
-plt.subplot(1,3,2)
-plt.title("Encoded Features")
-plt.bar(range(latent_dim), features[0])
-plt.xlabel("Feature index")
-plt.ylabel("Feature value")
-
-# Восстановленное изображение
-plt.subplot(1,3,3)
-plt.title("Reconstructed Image")
-plt.imshow(reconstructed[0,:,:,0], cmap='gray')
-plt.axis('off')
+axs[0].imshow(img[0,:,:,0], cmap='gray')
+axs[0].axis('off')
+axs[1].bar(range(latent_dim), features[0])
+axs[2].imshow(reconstructed[0,:,:,0], cmap='gray')
+axs[2].axis('off')
 
 plt.show()
+
+
+# metrics = auto.evaluate(img, reconstructed)
+# print("\nМетрики my_model:", metrics, "\n\n")
