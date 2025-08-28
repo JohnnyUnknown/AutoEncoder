@@ -4,17 +4,18 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 
 
-input_dir_g = Path(r"C:\My\Projects\images\main\Data_img\Dataset_160\google_aug")
-input_dir_y = Path(r"C:\My\Projects\images\main\Data_img\Dataset_160\yandex_aug")
-# input_dir_img = Path(r"C:\My\Projects\images\main\Data_img\images_aug")
+# input_dir_g = Path(r"C:\My\Projects\images\main\Data_img\Dataset_160\google_aug")
+# input_dir_y = Path(r"C:\My\Projects\images\main\Data_img\Dataset_160\yandex_aug")
+input_dir_g = Path(r"C:\My\Projects\images\main\Data_img\Dataset_160\camera_aug")
+input_dir_y = Path(r"C:\My\Projects\images\main\Data_img\Dataset_160\images_aug")
 output_dir = Path(r"C:\My\Projects\images\main\Data_img\Dataset_160")
 
 target_size = (160, 160)  
 supported_ext = ('.jpg', '.jpeg', '.png', '.bmp', '.tiff')
 
 # Создаём папки для train и test, если их нет
-for i in range(2):
-    (train_dir := output_dir / f'train_{i}').mkdir(parents=True, exist_ok=True)
+for i in range(1):
+    (train_dir := output_dir / f'train_{2}').mkdir(parents=True, exist_ok=True)
 (test_dir := output_dir / 'test').mkdir(parents=True, exist_ok=True)
 
 # Получаем список путей к изображениям с поддерживаемыми расширениями
@@ -47,7 +48,7 @@ def process_and_save_train(paths):
         try:
             with Image.open(img_path) as img:
                 img = img.resize(target_size)
-                save_path = (output_dir / f'train_{cnt // 3100}') / img_path.name
+                save_path = (output_dir / f'train_{2}') / img_path.name
                 # save_path = (output_dir / f'train_0') / img_path.name
                 img.save(save_path)
         except Exception as e:

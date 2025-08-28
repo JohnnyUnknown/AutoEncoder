@@ -7,6 +7,10 @@ from PIL import Image
 from pathlib import Path
 
 
+target_size = 160
+latent_dim = 256
+input_shape = (target_size, target_size, 1)
+
 def load_and_preprocess_image(path, target_size):
     img = Image.open(path).convert('L')  
     img = img.resize(target_size)
@@ -14,56 +18,56 @@ def load_and_preprocess_image(path, target_size):
     img_array = np.expand_dims(img_array, axis=(0, -1))  # (1, H, W, 1)
     return img_array
 
-# def combined_loss(y_true, y_pred):
-#     mse = tf.keras.losses.MeanSquaredError()(y_true, y_pred)
-#     mae = tf.keras.losses.MeanAbsoluteError()(y_true, y_pred)
-#     return 0.5 * mse + 0.5 * mae
 
 
+IMAGE_DIR = Path(f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_0")
+file_model_1 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\test\\img (20)_rotated_90.jpg"
+file_model_2 = IMAGE_DIR / "g_ (6)_rotated_0.jpg"
+file_model_3 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_1\\g_ (3)_rotated_0.jpg"
 
-# IMAGE_DIR = Path("C:\\My\\Projects\\images\\main\\Data_img\\Dataset_192\\train_0")
-# file_model = "C:\\My\\Projects\\images\\main\\Data_img\\Dataset_192\\test\\g_ (10)_rotated_90_flipped_channels_permuted.jpg"
-# file_model = IMAGE_DIR / "g_ (8)_rotated_270_flipped.jpg"
-# file_model = IMAGE_DIR / "g_ (6)_rotated_0.jpg"
 
-
-IMAGE_DIR = Path("C:\\My\\Projects\\images\\main\\Data_img\\Dataset_160\\train_0")
-# file_model = "C:\\My\\Projects\\images\\main\\Data_img\\Dataset_160\\test\\g_ (9)_rotated_90.jpg"
-file_model = IMAGE_DIR / "g_ (6)_rotated_0.jpg"
-# file_model = IMAGE_DIR / "g_ (7)_rotated_270_flipped_channels_permuted.jpg"
-
-# Определение простого автоэнкодера
-latent_dim = 256
-# input_shape = (192, 192, 1)
-input_shape = (160, 160, 1)
-
-# get_custom_objects().update({'combined_loss': combined_loss})
 # autoencoder = load_model("new_model_1.keras")
-autoencoder = load_model("model_256_160p_0.keras")
+# autoencoder = load_model("model_256_160p_0.keras")
+autoencoder = load_model("model_256_160p_mse_0.keras")
 
-# encoder = Model(inputs=auto.input, outputs=auto.get_layer("getting_features").output)
+
 encoder = Model(inputs=autoencoder.input, outputs=autoencoder.get_layer("latent_features").output)
-# autoencoder = Model(inputs=auto.input, outputs=auto.get_layer("sequential_1").output)
-# autoencoder = Model(inputs=auto.input, outputs=auto.get_layer("decoder").output)
 autoencoder.summary()
 
 
-# Загрузка и подготовка изображения
-img = load_and_preprocess_image(file_model, input_shape[:2])
+img_1 = load_and_preprocess_image(file_model_1, input_shape[:2])
+img_2 = load_and_preprocess_image(file_model_2, input_shape[:2])
+img_3 = load_and_preprocess_image(file_model_3, input_shape[:2])
 
-# Получение признаков и восстановления
-features = encoder.predict(img)
-reconstructed = autoencoder.predict(img)
+features_1 = encoder.predict(img_1)
+reconstructed_1 = autoencoder.predict(img_1)
+features_2 = encoder.predict(img_2)
+reconstructed_2 = autoencoder.predict(img_2)
+features_3 = encoder.predict(img_3)
+reconstructed_3 = autoencoder.predict(img_3)
 
 # Визуализация
-fig = plt.figure(figsize=(12,4))
-axs = fig.subplots(1, 3)
+fig = plt.figure(figsize=(12,8))
+axs = fig.subplots(2, 3)
 
-axs[0].imshow(img[0,:,:,0], cmap='gray')
-axs[0].axis('off')
-axs[1].bar(range(latent_dim), features[0])
-axs[2].imshow(reconstructed[0,:,:,0], cmap='gray')
-axs[2].axis('off')
+axs[0][0].imshow(img_1[0,:,:,0], cmap='gray')
+axs[0][0].axis('off')
+axs[1][0].imshow(reconstructed_1[0,:,:,0], cmap='gray')
+axs[1][0].axis("off")
+
+axs[0][1].imshow(img_2[0,:,:,0], cmap='gray')
+axs[0][1].axis('off')
+axs[1][1].imshow(reconstructed_2[0,:,:,0], cmap='gray')
+axs[1][1].axis("off")
+
+axs[0][2].imshow(img_3[0,:,:,0], cmap='gray')
+axs[0][2].axis('off')
+axs[1][2].imshow(reconstructed_3[0,:,:,0], cmap='gray')
+axs[1][2].axis("off")
+
+axs[0][0].set_title('Тестовое изображение')
+axs[0][1].set_title('Тренировочное с 1 этапа')
+axs[0][2].set_title('Тренировочное с 2 этапа')
 
 plt.show()
 
