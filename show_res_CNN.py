@@ -7,7 +7,7 @@ from PIL import Image
 from pathlib import Path
 
 
-target_size = 160
+target_size = 256
 latent_dim = 256
 input_shape = (target_size, target_size, 1)
 
@@ -21,22 +21,16 @@ def load_and_preprocess_image(path, target_size):
 
 # 160x160
 # IMAGE_DIR = Path(f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_0")
-file_model_1 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\test\\img (20)_rotated_90.jpg"
-file_model_2 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_0\\g_ (6)_rotated_0.jpg"
-file_model_3 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_1\\g_ (3)_rotated_0.jpg"
-
-# 192x192
-# file_model_1 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\test\\g_ (7)_rotated_90_flipped.jpg"
-# file_model_2 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_0\\g_ (4)_rotated_270_flipped.jpg"
-# file_model_3 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_1\\g_ (14)_rotated_270.jpg"
+file_model_1 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_0\\g_1-5_rot_90.jpg"
+file_model_2 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_0\\g_1-5_rot_90.jpg"
+file_model_3 = f"C:\\My\\Projects\\images\\main\\Data_img\\Dataset_{target_size}\\train_0\\g_1-5_rot_90.jpg"
 
 
-# autoencoder = load_model("new_model_1.keras")
-# autoencoder = load_model("model_256_160p_0.keras")
-autoencoder = load_model("model_256_160p_mse_1.keras")
+
+autoencoder = load_model("CNN_0.keras")
 
 
-encoder = Model(inputs=autoencoder.input, outputs=autoencoder.get_layer("latent_features").output)
+encoder = Model(inputs=autoencoder.input, outputs=autoencoder.get_layer("features").output)
 autoencoder.summary()
 
 

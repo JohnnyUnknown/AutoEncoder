@@ -52,63 +52,63 @@ def load_and_preprocess(path):
 input_shape = (TARGET_HEIGHT, TARGET_WIDTH, 1)
 inputs = Input(shape=input_shape)
 
-# Encoder
-x = Conv2D(64, kernel_size=3, activation="relu", padding='same', kernel_regularizer=regularizers.L2(1e-4))(inputs)
-x = MaxPooling2D(pool_size=2, padding='same')(x)  
+# # Encoder
+# x = Conv2D(64, kernel_size=3, activation="relu", padding='same', kernel_regularizer=regularizers.L2(1e-4))(inputs)
+# x = MaxPooling2D(pool_size=2, padding='same')(x)  
 
-x = Conv2D(128, kernel_size=3, activation="relu", padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
-x = MaxPooling2D(pool_size=2, padding='same')(x)  
+# x = Conv2D(128, kernel_size=3, activation="relu", padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
+# x = MaxPooling2D(pool_size=2, padding='same')(x)  
                                                  
-x = Conv2D(256, kernel_size=3, activation="relu", padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
-x = MaxPooling2D(pool_size=2, padding='same')(x)  
+# x = Conv2D(256, kernel_size=3, activation="relu", padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
+# x = MaxPooling2D(pool_size=2, padding='same')(x)  
                                                  
-x = Conv2D(256, kernel_size=3, activation="relu", padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
-x = MaxPooling2D(pool_size=2, padding='same')(x)  
+# x = Conv2D(256, kernel_size=3, activation="relu", padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
+# x = MaxPooling2D(pool_size=2, padding='same')(x)  
 
-shape_before_flattening = x.shape[1:]   # Сохраним форму для декодера
-flattened = Flatten()(x)
-flattened = Dropout(0.3)(flattened)
-latent_features = Dense(256, activation=None, name='latent_features', kernel_regularizer=None)(flattened)
+# shape_before_flattening = x.shape[1:]   # Сохраним форму для декодера
+# flattened = Flatten()(x)
+# flattened = Dropout(0.3)(flattened)
+# latent_features = Dense(256, activation=None, name='latent_features', kernel_regularizer=None)(flattened)
 
-# Decoder
-x = Dense(prod(shape_before_flattening), activation='relu', kernel_regularizer=None)(latent_features)
-x = Reshape(shape_before_flattening)(x)
+# # Decoder
+# x = Dense(prod(shape_before_flattening), activation='relu', kernel_regularizer=None)(latent_features)
+# x = Reshape(shape_before_flattening)(x)
 
-x = UpSampling2D(size=2)(x)                                                                      
-x = Conv2D(256, kernel_size=3, activation='relu', padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
+# x = UpSampling2D(size=2)(x)                                                                      
+# x = Conv2D(256, kernel_size=3, activation='relu', padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
 
-x = UpSampling2D(size=2)(x)                                                                     
-x = Conv2D(256, kernel_size=3, activation='relu', padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
+# x = UpSampling2D(size=2)(x)                                                                     
+# x = Conv2D(256, kernel_size=3, activation='relu', padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
 
-x = UpSampling2D(size=2)(x)                                                                     
-x = Conv2D(128, kernel_size=3, activation='relu', padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
+# x = UpSampling2D(size=2)(x)                                                                     
+# x = Conv2D(128, kernel_size=3, activation='relu', padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
 
-x = UpSampling2D(size=2)(x)    
-x = Conv2D(64, kernel_size=3, activation='relu', padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
+# x = UpSampling2D(size=2)(x)    
+# x = Conv2D(64, kernel_size=3, activation='relu', padding='same', kernel_regularizer=regularizers.L2(1e-4))(x)
 
-decoded = Conv2D(1, kernel_size=3, activation='sigmoid', padding='same', name="decoder")(x)
+# decoded = Conv2D(1, kernel_size=3, activation='sigmoid', padding='same', name="decoder")(x)
 
 
-autoencoder_model = Model(inputs, decoded)
-autoencoder_model.compile(
-        optimizer=Adam(learning_rate=0.0005), 
-        loss=MeanSquaredError(),
-        metrics=["mae"]
-    )
-autoencoder_model.summary()
+# autoencoder_model = Model(inputs, decoded)
+# autoencoder_model.compile(
+#         optimizer=Adam(learning_rate=0.0001), 
+#         loss=MeanSquaredError(),
+#         metrics=["mae"]
+#     )
+# autoencoder_model.summary()
 
 
 for i in range(0, 1):
 
-    # autoencoder_model = load_model(Path(path[0] + f"/model_256_160p_mse_{0}.keras"), compile=False)
-    # autoencoder_model.compile(
-    #     optimizer=Adam(learning_rate=0.0001),
-    #     loss=MeanAbsoluteError(),
-    #     metrics=["mse"]
-    # )
+    autoencoder_model = load_model(Path(path[0] + f"/model_256_160p_mse_{0}.keras"), compile=False)
+    autoencoder_model.compile(
+        optimizer=Adam(learning_rate=0.00001),
+        loss=MeanAbsoluteError(),
+        metrics=["mse"]
+    )
     
     # epochs = (10 if not i else 20)
-    epochs = 30
+    epochs = 20
     print(f"\ntrain_{i}\n")
     callback = EarlyStopping(
             monitor="val_loss", 
@@ -145,5 +145,5 @@ for i in range(0, 1):
             callbacks=[callback]
         )
 
-    file_model = Path(path[0] + f"/model_256_160p_mse_{0}.keras")
+    file_model = Path(path[0] + f"/model_256_160p_mse_{1}.keras")
     autoencoder_model.save(file_model)
